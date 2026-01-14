@@ -99,10 +99,7 @@ public class InputHelper {
     public static String getPhoneNumber(String message) {
         return getValidatedString(message, "^0\\d{9}$", "Số điện thoại không hợp lệ (Phải có 10 số, bắt đầu là 0).");
     }
-    public static String getEmail(String message) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-        return getValidatedString(message, emailRegex, "Email không đúng định dạng (vd: a@b.com).");
-    }
+
 
 
 }

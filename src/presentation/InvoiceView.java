@@ -1,38 +1,222 @@
-package view;
+package presentation;
 
+import business.IInvoiceService;
+import business.IProductService;
+import business.impl.InvoiceServiceImpl;
+import business.impl.ProductServiceImpl;
+import model.Invoice;
+import model.InvoiceDetail;
+import model.Product;
+import util.Formatter;
 import util.InputHelper;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class InvoiceView {
 
-    public void displayMenu() {
+    private final IInvoiceService invoiceService;
+    private final IProductService productService;
+
+    public InvoiceView() {
+        this.invoiceService = new InvoiceServiceImpl();
+        this.productService = new ProductServiceImpl();
+    }
+
+    // ==========================================
+    // MENU 1: QUẢN LÝ HÓA ĐƠN (Mục 3 ở Main Menu)
+    // ==========================================
+    public void displayInvoiceManagementMenu() {
         while (true) {
-            System.out.println("\n--- QUẢN LÝ MUA BÁN & DOANH THU ---");
-            System.out.println("1. Tạo đơn hàng mới (Mua bán)");
-            System.out.println("2. Xem danh sách hóa đơn");
+            System.out.println("\n========= QUẢN LÝ HÓA ĐƠN =========");
+            System.out.println("1. Hiển thị danh sách hóa đơn");
+            System.out.println("2. Thêm mới hóa đơn");
             System.out.println("3. Tìm kiếm hóa đơn");
-            System.out.println("4. Thống kê doanh thu (Ngày/Tháng/Năm)");
-            System.out.println("0. Quay về menu chính");
+            System.out.println("4. Quay lại menu chính");
+            System.out.println("===================================");
 
-            int choice = InputHelper.getInt("Chọn chức năng: ");
-
+            int choice = InputHelper.getInt("Nhập lựa chọn: ");
             switch (choice) {
                 case 1:
-                    System.out.println(">> Chức năng bán hàng đang phát triển...");
+                    displayList(invoiceService.getAll());
                     break;
                 case 2:
-                    System.out.println(">> Chức năng xem hóa đơn đang phát triển...");
+                    createNewInvoice();
                     break;
                 case 3:
-                    System.out.println(">> Chức năng tìm kiếm đang phát triển...");
+                    displaySearchMenu();
                     break;
                 case 4:
-                    System.out.println(">> Chức năng thống kê đang phát triển...");
-                    break;
-                case 0:
-                    return; // Quay về MainMenu
+                    return; // Quay về
                 default:
                     System.out.println(">> Lựa chọn không hợp lệ!");
             }
         }
     }
+
+    // Menu con: Tìm kiếm hóa đơn
+    private void displaySearchMenu() {
+        while (true) {
+            System.out.println("\n--> Menu tìm kiếm hóa đơn");
+            System.out.println("1. Tìm theo tên khách hàng");
+            System.out.println("2. Tìm theo ngày/tháng/năm (Ngày tạo)");
+            System.out.println("3. Quay lại menu hóa đơn");
+
+            int choice = InputHelper.getInt("Nhập lựa chọn: ");
+            switch (choice) {
+                case 1:
+                    String name = InputHelper.getString("Nhập tên khách hàng: ");
+                    displayList(invoiceService.searchByCustomer(name));
+                    break;
+                case 2:
+                    String dateStr = InputHelper.getValidatedString(
+                            "Nhập ngày (dd/MM/yyyy): ",
+                            "^\\d{2}/\\d{2}/\\d{4}$",
+                            "Định dạng ngày không đúng (vd: 25/12/2023)"
+                    );
+                    LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    displayList(invoiceService.searchByDate(date));
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println(">> Lựa chọn không hợp lệ!");
+            }
+        }
+    }
+    public void displayStatisticsMenu() {
+        while (true) {
+            System.out.println("\n========= THỐNG KÊ DOANH THU =========");
+            System.out.println("1. Doanh thu theo ngày");
+            System.out.println("2. Doanh thu theo tháng");
+            System.out.println("3. Doanh thu theo năm");
+            System.out.println("4. Quay lại menu chính");
+            System.out.println("======================================");
+
+            int choice = InputHelper.getInt("Nhập lựa chọn: ");
+            switch (choice) {
+                case 1:
+                    int m = InputHelper.getPositiveInt("Nhập tháng: ");
+                    int y = InputHelper.getPositiveInt("Nhập năm: ");
+                    printRevenueTable("NGÀY", invoiceService.getRevenueByDay(m, y));
+                    break;
+                case 2:
+                    int year = InputHelper.getPositiveInt("Nhập năm: ");
+                    printRevenueTable("THÁNG", invoiceService.getRevenueByMonth(year));
+                    break;
+                case 3:
+                    printRevenueTable("NĂM", invoiceService.getRevenueByYear());
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println(">> Lựa chọn không hợp lệ!");
+            }
+        }
+    }
+    private void displayList(List<Invoice> list) {
+        if (list == null || list.isEmpty()) {
+            System.out.println(">> Không tìm thấy hóa đơn nào!");
+            return;
+        }
+        System.out.println("\n+-----+------------+----------------------+-----------------+");
+        System.out.printf("| %-3s | %-10s | %-20s | %-15s |\n", "ID", "NGÀY TẠO", "KHÁCH HÀNG", "TỔNG TIỀN");
+        System.out.println("+-----+------------+----------------------+-----------------+");
+
+        for (Invoice i : list) {
+            System.out.printf("| %-3d | %-10s | %-20s | %-15s |\n",
+                    i.getId(),
+                    Formatter.formatDate(i.getCreatedAt()),
+                    (i.getCustomerName() == null ? "N/A" : i.getCustomerName()),
+                    Formatter.formatMoney(i.getTotalAmount()));
+        }
+        System.out.println("+-----+------------+----------------------+-----------------+");
+        InputHelper.pressEnterToContinue();
+    }
+    private void printRevenueTable(String label, Map<Integer, Double> data) {
+        if (data.isEmpty()) {
+            System.out.println(">> Không có dữ liệu doanh thu!");
+            InputHelper.pressEnterToContinue();
+            return;
+        }
+        double grandTotal = 0;
+        System.out.println("\n------------------------------");
+        System.out.printf("| %-10s | %-15s |\n", label, "DOANH THU");
+        System.out.println("------------------------------");
+        for (Map.Entry<Integer, Double> entry : data.entrySet()) {
+            System.out.printf("| %-10d | %-15s |\n", entry.getKey(), Formatter.formatMoney(entry.getValue()));
+            grandTotal += entry.getValue();
+        }
+        System.out.println("------------------------------");
+        System.out.printf("| %-10s | %-15s |\n", "TỔNG CỘNG", Formatter.formatMoney(grandTotal));
+        System.out.println("------------------------------");
+        InputHelper.pressEnterToContinue();
+    }
+    private void createNewInvoice() {
+        System.out.println("\n--- TẠO HÓA ĐƠN MỚI ---");
+        int customerId = InputHelper.getInt("Nhập ID Khách hàng mua: ");
+        List<InvoiceDetail> cart = new ArrayList<>();
+        boolean buying = true;
+        while (buying) {
+            int productId = InputHelper.getInt("Nhập ID Sản phẩm: ");
+            Product p = productService.getById(productId);
+            if (p == null) {
+                System.out.println(">> Lỗi: Sản phẩm không tồn tại!");
+                continue;
+            }
+            System.out.println(">> Sản phẩm: " + p.getName() + " | Giá: " + Formatter.formatMoney(p.getPrice()) + " | Tồn: " + p.getStock());
+            if (p.getStock() <= 0) {
+                System.out.println(">> HẾT HÀNG! Vui lòng chọn sản phẩm khác.");
+                continue;
+            }
+
+            int qty = InputHelper.getPositiveInt("Nhập số lượng mua: ");
+            if (qty > p.getStock()) {
+                System.out.println(">> Lỗi: Số lượng mua vượt quá tồn kho (" + p.getStock() + ")");
+                continue;
+            }
+            // Thêm vào giỏ
+            InvoiceDetail item = new InvoiceDetail();
+            item.setProductId(productId);
+            item.setQuantity(qty);
+            item.setUnitPrice(p.getPrice()); // Lưu giá tại thời điểm bán
+            cart.add(item);
+
+            System.out.println(">> Đã thêm vào giỏ hàng.");
+            buying = InputHelper.confirm("Mua thêm sản phẩm khác không?");
+        }
+
+        if (cart.isEmpty()) {
+            System.out.println(">> Giỏ hàng trống. Hủy tạo hóa đơn.");
+            return;
+        }
+
+        double total = 0;
+        System.out.println("\n--- XÁC NHẬN ĐƠN HÀNG ---");
+        for (InvoiceDetail item : cart) {
+            total += item.getSubTotal();
+            System.out.printf("SP ID: %d | SL: %d | Giá: %s\n", item.getProductId(), item.getQuantity(), Formatter.formatMoney(item.getUnitPrice()));
+        }
+        System.out.println("=> TỔNG TIỀN: " + Formatter.formatMoney(total));
+
+        if (InputHelper.confirm("Xác nhận thanh toán và lưu hóa đơn?")) {
+            invoiceService.createOrder(customerId, cart);
+        } else {
+            System.out.println(">> Đã hủy đơn hàng.");
+        }
+        InputHelper.pressEnterToContinue();
+    }
+
+
+
+
+
+
+
+
+
+
 }

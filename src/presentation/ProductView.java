@@ -1,7 +1,8 @@
-package view;
+package presentation;
 
+import business.IProductService;
+import business.impl.ProductServiceImpl;
 import model.Product;
-import service.ProductService;
 import util.Formatter;
 import util.InputHelper;
 
@@ -9,10 +10,10 @@ import java.util.List;
 
 public class ProductView {
 
-    private final ProductService productService;
+    private final IProductService productService;
 
     public ProductView() {
-        this.productService = new ProductService();
+        this.productService = new ProductServiceImpl();
     }
 
     public void displayMenu() {
@@ -22,7 +23,9 @@ public class ProductView {
             System.out.println("2. Thêm mới sản phẩm");
             System.out.println("3. Cập nhật sản phẩm");
             System.out.println("4. Xóa sản phẩm");
-            System.out.println("5. Tìm kiếm sản phẩm");
+            System.out.println("5. Tìm kiếm theo Brand");
+            System.out.println("6. Tìm kiếm theo khoảng giá ");
+            System.out.println("7. Tìm kiếm theo tồn kho ");
             System.out.println("0. Quay lại Menu chính");
 
             int choice = InputHelper.getInt("Chọn chức năng: ");
@@ -41,7 +44,13 @@ public class ProductView {
                     deleteProduct();
                     break;
                 case 5:
-                    searchProductMenu();
+                    searchByBrand();
+                    break;
+                case 6:
+                    searchByPriceRange();
+                    break;
+                case 7:
+                    searchByStockRange();
                     break;
                 case 0:
                     System.out.println(">> Quay lại Menu chính.");
@@ -107,7 +116,7 @@ public class ProductView {
         while (keepEditing) {
             System.out.println("\n------------------------------------------------");
             System.out.println("THÔNG TIN ĐANG SỬA (Lưu trên RAM):");
-            System.out.println(product.toString());
+            System.out.println(product);
             System.out.println("------------------------------------------------");
             System.out.println("   1. Sửa Tên sản phẩm");
             System.out.println("   2. Sửa Hãng (Brand)");
@@ -163,7 +172,6 @@ public class ProductView {
         System.out.println("\n--- XÓA SẢN PHẨM ---");
         int id;
         Product product = null;
-
         while (true) {
             id = InputHelper.getInt("Nhập ID sản phẩm muốn xóa (0 để thoát): ");
             if (id == 0) return;
@@ -185,53 +193,34 @@ public class ProductView {
         InputHelper.pressEnterToContinue();
     }
 
-
-
-    private void searchProductMenu() {
-        while (true) {
-            System.out.println("\n--- TÌM KIẾM SẢN PHẨM ---");
-            System.out.println("1. Tìm theo Nhãn hàng (Brand)");
-            System.out.println("2. Tìm theo Khoảng giá (Price Range)");
-            System.out.println("3. Tìm theo Tồn kho (Stock Availability)");
-            System.out.println("0. Quay lại");
-
-            int choice = InputHelper.getInt("Chọn tiêu chí tìm kiếm: ");
-            List<Product> result = null;
-
-            switch (choice) {
-                case 1:
-                    String brandKeyword = InputHelper.getString("Nhập tên hãng cần tìm: ");
-                    result = productService.searchByBrand(brandKeyword);
-                    System.out.println(">> Kết quả tìm kiếm hãng '" + brandKeyword + "':");
-                    printList(result);
-                    break;
-                case 2:
-                    System.out.println(">> Nhập khoảng giá:");
-                    double minPrice = InputHelper.getPositiveDouble(" - Giá thấp nhất: ");
-                    double maxPrice = InputHelper.getPositiveDouble(" - Giá cao nhất: ");
-                    result = productService.searchByPrice(minPrice, maxPrice);
-                    System.out.println(">> Kết quả tìm kiếm giá từ " + Formatter.formatMoney(minPrice) + " đến " + Formatter.formatMoney(maxPrice) + ":");
-                    printList(result);
-                    break;
-                case 3:
-                    System.out.println(">> Nhập khoảng số lượng tồn kho:");
-                    int minStock = InputHelper.getPositiveInt(" - Số lượng tối thiểu: ");
-                    int maxStock = InputHelper.getPositiveInt(" - Số lượng tối đa: ");
-                    result = productService.searchByStock(minStock, maxStock);
-                    System.out.println(">> Kết quả tìm kiếm tồn kho từ " + minStock + " đến " + maxStock + ":");
-                    printList(result);
-                    break;
-                case 0:
-                    return;
-                default:
-                    System.out.println(">> Lựa chọn không hợp lệ!");
-            }
-            if (choice != 0) InputHelper.pressEnterToContinue();
-        }
+    private void searchByBrand(){
+        List<Product> result = null;
+        String brandKeyword = InputHelper.getString("Nhập tên hãng cần tìm: ");
+        result = productService.searchByBrand(brandKeyword);
+        System.out.println(">> Kết quả tìm kiếm hãng '" + brandKeyword + "':");
+        printList(result);
+        InputHelper.pressEnterToContinue();
     }
-
-
-
+    private void searchByPriceRange(){
+        List<Product> result = null;
+        System.out.println(">> Nhập khoảng giá:");
+        double minPrice = InputHelper.getPositiveDouble(" - Giá thấp nhất: ");
+        double maxPrice = InputHelper.getPositiveDouble(" - Giá cao nhất: ");
+        result = productService.searchByPrice(minPrice, maxPrice);
+        System.out.println(">> Kết quả tìm kiếm giá từ " + Formatter.formatMoney(minPrice) + " đến " + Formatter.formatMoney(maxPrice) + ":");
+        printList(result);
+        InputHelper.pressEnterToContinue();
+    }
+    private void searchByStockRange(){
+        List<Product> result = null;
+        System.out.println(">> Nhập khoảng số lượng tồn kho:");
+        int minStock = InputHelper.getPositiveInt(" - Số lượng tối thiểu: ");
+        int maxStock = InputHelper.getPositiveInt(" - Số lượng tối đa: ");
+        result = productService.searchByStock(minStock, maxStock);
+        System.out.println(">> Kết quả tìm kiếm tồn kho từ " + minStock + " đến " + maxStock + ":");
+        printList(result);
+        InputHelper.pressEnterToContinue();
+    }
 
 
 }

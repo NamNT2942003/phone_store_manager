@@ -1,4 +1,4 @@
 package business.impl;
 
-public class AdminService {
+public class AdminServiceImpl {
 }

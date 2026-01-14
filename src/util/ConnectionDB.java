@@ -1,4 +1,4 @@
-package config;
+package util;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

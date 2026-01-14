@@ -1,59 +1,52 @@
 package business.impl;
 
+import business.IProductService;
 import dao.IProductDAO;
 import dao.impl.ProductDAOImpl;
 import model.Product;
 
 import java.util.List;
 
-public class ProductService implements IProductDAO {
-    private final  IProductDAO productDAO;
+public class ProductServiceImpl implements IProductService {
 
-    public 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public ProductService() {
+    private final IProductDAO productDAO;
+    public ProductServiceImpl() {
         this.productDAO = new ProductDAOImpl();
     }
+    @Override
     public List<Product> getAll() {
         return productDAO.getAllProducts();
     }
-    public Product getById(int id) {
-        return productDAO.getProductById(id);
-    }
+    @Override
     public void add(Product product) {
         productDAO.addProduct(product);
     }
-    public void update(Product product) {
-        productDAO.updateProduct(product);
-    }
-    public void delete(int id) {
-        productDAO.deleteProduct(id);
-    }
-    public List<Product> searchByBrand(String keyword) {
-        return productDAO.searchByBrand(keyword);
-    }
-    public List<Product> searchByPrice(double min, double max) {
-        if (min > max) {
-            System.out.println(">> Lỗi logic: Giá min không được lớn hơn giá max!");
-            return null;
-        }
-        return productDAO.searchByPrice(min, max);
-    }
-    public List<Product> searchByStock(int min, int max) {
-        return productDAO.searchByStock(min, max);
-    }
-
+    @Override
+    public Product getById(int id) { return productDAO.getProductById(id); }
+    @Override
+    public void update(Product product) { productDAO.updateProduct(product); }
+    @Override
+    public void delete(int id) { productDAO.deleteProduct(id); }
+    @Override
+    public List<Product> searchByBrand(String keyword) { return productDAO.searchByBrand(keyword); }
+    @Override
+    public List<Product> searchByPrice(double min, double max) { return productDAO.searchByPrice(min, max); }
+    @Override
+    public List<Product> searchByStock(int min, int max) { return productDAO.searchByStock(min, max); }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

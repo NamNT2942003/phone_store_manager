@@ -1,5 +1,7 @@
 package model;
 
+import util.Formatter;
+
 import java.time.LocalDate;
 
 public class Invoice {
@@ -7,6 +9,7 @@ public class Invoice {
     private int customerId;
     private LocalDate createdAt;
     private double totalAmount;
+    private String customerName;
 
     public Invoice() {}
 
@@ -33,6 +36,14 @@ public class Invoice {
         this.customerId = customerId;
     }
 
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public double getTotalAmount() {
         return totalAmount;
     }
@@ -41,11 +52,19 @@ public class Invoice {
         this.totalAmount = totalAmount;
     }
 
-    public LocalDate getCreatedAt() {
-        return createdAt;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+    @Override
+    public String toString() {
+        return String.format("Mã HĐ: %d | Khách: %s | Ngày: %s | Tổng: %s",
+                id,
+                customerName, // Cập nhật toString
+                Formatter.formatDate(createdAt),
+                Formatter.formatMoney(totalAmount));
     }
 }

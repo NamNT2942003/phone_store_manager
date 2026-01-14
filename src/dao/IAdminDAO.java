@@ -1,4 +1,4 @@
 package dao;
 
-public interface AdminDAO {
+public interface IAdminDAO {
 }

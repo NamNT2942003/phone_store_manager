@@ -1,4 +1,4 @@
 package dao.impl;
 
-public class IAdminDaoImpl {
+public class AdminDaoImpl {
 }

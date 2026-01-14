@@ -1,5 +1,6 @@
 package dao.impl;
 
+import dao.IProductDAO;
 import model.Product;
 import util.ConnectionDB;
 
@@ -9,7 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IProductDAOImpl {
+public class ProductDAOImpl implements IProductDAO {
     public void addProduct(Product p) {
         Connection conn = null;
         CallableStatement callSt = null;

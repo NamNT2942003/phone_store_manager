@@ -64,7 +64,7 @@ public class Customer {
         this.phone = InputHelper.getPhoneNumber("Nhập số điện thoại: ");
         System.out.print("Bạn có muốn nhập Email không? (Y/N): ");
         if (InputHelper.confirm("")) {
-            this.email = InputHelper.getEmail("Nhập Email: ");
+            this.email = InputHelper.getString("Nhập Email: ");
         } else {
             this.email = null;
         }
@@ -72,7 +72,7 @@ public class Customer {
     }
     @Override
     public String toString() {
-        return String.format("ID: %d | Tên: %-20s | SĐT: %-12s | Email: %-20s | Đ/c: %s",
+        return String.format("ID: %d | Tên: %-20s | SĐT: %-12s | Email: %-20s | Địa chỉ: %s",
                 id, name, phone, (email == null ? "N/A" : email), (address == null ? "N/A" : address));
     }
 }
