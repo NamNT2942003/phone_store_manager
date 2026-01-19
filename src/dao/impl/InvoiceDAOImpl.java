@@ -26,7 +26,7 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
 
             String sqlHeader = "{? = call func_create_invoice_header(?, ?)}";
             callHeader = conn.prepareCall(sqlHeader);
-            callHeader.registerOutParameter(1, Types.INTEGER); // Giá trị trả về (ID)
+            callHeader.registerOutParameter(1, Types.INTEGER);
             callHeader.setInt(2, invoice.getCustomerId());
             callHeader.setDouble(3, invoice.getTotalAmount());
             callHeader.execute();
@@ -49,7 +49,6 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
             return true;
 
         } catch (Exception e) {
-            // 5. Nếu có lỗi -> Rollback (Hoàn tác toàn bộ)
             try {
                 if (conn != null) conn.rollback();
                 System.out.println(">> Lỗi Transaction (Đã hoàn tác): " + e.getMessage());
@@ -57,7 +56,7 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
             return false;
         } finally {
             try {
-                if (conn != null) conn.setAutoCommit(true); // Trả lại trạng thái mặc định
+                if (conn != null) conn.setAutoCommit(true);
                 if (callHeader != null) callHeader.close();
                 if (callDetail != null) callDetail.close();
                 if (conn != null) conn.close();
@@ -92,7 +91,7 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
         Connection conn = null;
         CallableStatement callSt = null;
         try {
-            conn = ConnectionDB.openConnection(); // Hoặc DBUtil.openConnection() nếu bạn đã đổi tên
+            conn = ConnectionDB.openConnection();
             callSt = conn.prepareCall("SELECT * FROM func_search_invoice_by_customer(?)");
             callSt.setString(1, keyword);
 
@@ -137,7 +136,6 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
         finally { ConnectionDB.closeConnection(conn, callSt); }
         return list;
     }
-    // Hàm helper để map kết quả thống kê
     private Map<Integer, Double> getRevenueData(String sql, Object... params) {
         Map<Integer, Double> data = new java.util.TreeMap<>();
         Connection conn = null;

@@ -3,7 +3,6 @@ package util;
 import java.util.Scanner;
 
 public class InputHelper {
-    // Khởi tạo Scanner static để dùng chung, tránh lỗi trôi lệnh
     private static final Scanner scanner = new Scanner(System.in);
 
     public static int getInt(String message) {
@@ -11,7 +10,6 @@ public class InputHelper {
             try {
                 System.out.print(message);
                 String input = scanner.nextLine().trim();
-                // Kiểm tra rỗng
                 if (input.isEmpty()) {
                     System.out.println(">> Lỗi: Không được để trống. Vui lòng nhập lại!");
                     continue;

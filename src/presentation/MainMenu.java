@@ -21,7 +21,7 @@ public class MainMenu {
             System.out.println("2. Quản lý khách hàng");
             System.out.println("3. Quản lý hóa đơn");
             System.out.println("4. Thống kê doanh thu");
-            System.out.println("5. Đăng xuất"); // Hoặc Thoát
+            System.out.println("5. Đăng xuất");
             System.out.println("==============================");
 
             int choice = InputHelper.getInt("Nhập lựa chọn: ");

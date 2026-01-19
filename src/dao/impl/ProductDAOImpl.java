@@ -164,7 +164,6 @@ public class ProductDAOImpl implements IProductDAO {
         }
         return list;
     }
-    // 7. Tìm kiếm theo khoảng giá
     public List<Product> searchByPrice(double min, double max) {
         List<Product> list = new ArrayList<>();
         Connection conn = null;
@@ -195,7 +194,7 @@ public class ProductDAOImpl implements IProductDAO {
         return list;
     }
 
-    // 8. Tìm kiếm theo tồn kho
+
     public List<Product> searchByStock(int min, int max) {
         List<Product> list = new ArrayList<>();
         Connection conn = null;

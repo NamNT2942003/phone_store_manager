@@ -1,20 +1,35 @@
+import presentation.AuthView;
 import presentation.MainMenu;
+import util.InputHelper;
 
 public class Main {
     public static void main(String[] args) {
-        // 1. Khởi tạo màn hình đăng nhập
-        // AuthView authView = new AuthView();
+        AuthView authView = new AuthView();
+        MainMenu mainMenu = new MainMenu();
 
-        // 2. Thực hiện đăng nhập
-        boolean isLoggedIn = true;
+        do {
+            System.out.println("\n ========= HỆ THỐNG QUẢN LÝ CỬA HÀNG ==========");
+            System.out.println("1. Đăng nhập Admin");
+            System.out.println("2. Thoát");
+            System.out.println("=============================================");
 
-        if (isLoggedIn) {
-            // 3. Nếu đăng nhập thành công, hiển thị Menu Chính
-            MainMenu mainMenu = new MainMenu();
-            mainMenu.display();
-        } else {
-            // Nếu chọn không thử lại khi sai pass
-            System.exit(0);
-        }
+            int choice = InputHelper.getInt("Nhập lựa chọn: ");
+            switch (choice) {
+                case 1:
+                    boolean logged = authView.login();
+                    if (logged) {
+                        mainMenu.display();
+                    }
+                    break;
+                case 2:
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println(">> Lựa chọn không hợp lệ!");
+            }
+
+        } while (true);
+
+
     }
 }

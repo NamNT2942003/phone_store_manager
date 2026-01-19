@@ -26,9 +26,6 @@ public class InvoiceView {
         this.productService = new ProductServiceImpl();
     }
 
-    // ==========================================
-    // MENU 1: QUẢN LÝ HÓA ĐƠN (Mục 3 ở Main Menu)
-    // ==========================================
     public void displayInvoiceManagementMenu() {
         while (true) {
             System.out.println("\n========= QUẢN LÝ HÓA ĐƠN =========");
@@ -50,14 +47,13 @@ public class InvoiceView {
                     displaySearchMenu();
                     break;
                 case 4:
-                    return; // Quay về
+                    return;
                 default:
                     System.out.println(">> Lựa chọn không hợp lệ!");
             }
         }
     }
 
-    // Menu con: Tìm kiếm hóa đơn
     private void displaySearchMenu() {
         while (true) {
             System.out.println("\n--> Menu tìm kiếm hóa đơn");
@@ -178,11 +174,10 @@ public class InvoiceView {
                 System.out.println(">> Lỗi: Số lượng mua vượt quá tồn kho (" + p.getStock() + ")");
                 continue;
             }
-            // Thêm vào giỏ
             InvoiceDetail item = new InvoiceDetail();
             item.setProductId(productId);
             item.setQuantity(qty);
-            item.setUnitPrice(p.getPrice()); // Lưu giá tại thời điểm bán
+            item.setUnitPrice(p.getPrice());
             cart.add(item);
 
             System.out.println(">> Đã thêm vào giỏ hàng.");
