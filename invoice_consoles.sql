@@ -53,7 +53,7 @@ BEGIN
             i.id,
             c.name,
             i.created_at,
-            i.total_amount::DOUBLE PRECISION 
+            i.total_amount::DOUBLE PRECISION
         FROM invoice i
                  JOIN customer c ON i.customer_id = c.id
         ORDER BY i.created_at DESC;
@@ -78,7 +78,7 @@ BEGIN
             i.id,
             c.name,
             i.created_at,
-            i.total_amount::DOUBLE PRECISION 
+            i.total_amount::DOUBLE PRECISION
         FROM invoice i
                  JOIN customer c ON i.customer_id = c.id
         WHERE c.name ILIKE '%' || p_keyword || '%'
@@ -86,23 +86,7 @@ BEGIN
 END;
 $$;
 
--- 5. Function Thống kê doanh thu theo Tháng
-CREATE OR REPLACE FUNCTION func_revenue_by_month(p_year INT)
-    RETURNS TABLE (
-                      out_month DOUBLE PRECISION,
-                      out_revenue DOUBLE PRECISION
-                  )
-    LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-        SELECT EXTRACT(MONTH FROM created_at) as month, SUM(total_amount) as revenue
-        FROM invoice
-        WHERE EXTRACT(YEAR FROM created_at) = p_year
-        GROUP BY month
-        ORDER BY month ASC;
-END;
-$$;
+
 
 -- 1. Fution Tìm kiếm hóa đơn theo Ngày cụ thể (yyyy-MM-dd)
 DROP FUNCTION IF EXISTS func_search_invoice_by_date;
@@ -122,7 +106,7 @@ BEGIN
             i.id,
             c.name,
             i.created_at,
-            i.total_amount::DOUBLE PRECISION 
+            i.total_amount::DOUBLE PRECISION
         FROM invoice i
                  JOIN customer c ON i.customer_id = c.id
         WHERE DATE(i.created_at) = p_date
@@ -142,13 +126,31 @@ AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            EXTRACT(DAY FROM created_at)::DOUBLE PRECISION, 
-            SUM(total_amount)::DOUBLE PRECISION            
+            EXTRACT(DAY FROM created_at)::DOUBLE PRECISION,
+            SUM(total_amount)::DOUBLE PRECISION
         FROM invoice
         WHERE EXTRACT(MONTH FROM created_at) = p_month
           AND EXTRACT(YEAR FROM created_at) = p_year
         GROUP BY EXTRACT(DAY FROM created_at)
         ORDER BY EXTRACT(DAY FROM created_at) ASC;
+END;
+$$;
+
+-- 5. Function Thống kê doanh thu theo Tháng
+CREATE OR REPLACE FUNCTION func_revenue_by_month(p_year INT)
+    RETURNS TABLE (
+                      out_month DOUBLE PRECISION,
+                      out_revenue DOUBLE PRECISION
+                  )
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+RETURN QUERY
+SELECT EXTRACT(MONTH FROM created_at) as month, SUM(total_amount) as revenue
+FROM invoice
+WHERE EXTRACT(YEAR FROM created_at) = p_year
+GROUP BY month
+ORDER BY month ASC;
 END;
 $$;
 
@@ -165,8 +167,8 @@ AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            EXTRACT(MONTH FROM created_at)::DOUBLE PRECISION, 
-            SUM(total_amount)::DOUBLE PRECISION               
+            EXTRACT(MONTH FROM created_at)::DOUBLE PRECISION,
+            SUM(total_amount)::DOUBLE PRECISION
         FROM invoice
         WHERE EXTRACT(YEAR FROM created_at) = p_year
         GROUP BY EXTRACT(MONTH FROM created_at)
@@ -186,8 +188,8 @@ AS $$
 BEGIN
     RETURN QUERY
         SELECT
-            EXTRACT(YEAR FROM created_at)::DOUBLE PRECISION, 
-            SUM(total_amount)::DOUBLE PRECISION             
+            EXTRACT(YEAR FROM created_at)::DOUBLE PRECISION,
+            SUM(total_amount)::DOUBLE PRECISION
         FROM invoice
         GROUP BY EXTRACT(YEAR FROM created_at)
         ORDER BY EXTRACT(YEAR FROM created_at) ASC;

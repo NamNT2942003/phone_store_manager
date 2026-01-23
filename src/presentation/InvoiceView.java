@@ -1,9 +1,12 @@
 package presentation;
 
+import business.ICustomerService;
 import business.IInvoiceService;
 import business.IProductService;
+import business.impl.CustomerServiceImpl;
 import business.impl.InvoiceServiceImpl;
 import business.impl.ProductServiceImpl;
+import model.Customer;
 import model.Invoice;
 import model.InvoiceDetail;
 import model.Product;
@@ -20,10 +23,12 @@ public class InvoiceView {
 
     private final IInvoiceService invoiceService;
     private final IProductService productService;
+    private final ICustomerService customerService;
 
     public InvoiceView() {
         this.invoiceService = new InvoiceServiceImpl();
         this.productService = new ProductServiceImpl();
+        this.customerService = new CustomerServiceImpl();
     }
 
     public void displayInvoiceManagementMenu() {
@@ -68,13 +73,17 @@ public class InvoiceView {
                     displayList(invoiceService.searchByCustomer(name));
                     break;
                 case 2:
-                    String dateStr = InputHelper.getValidatedString(
+                    try { String dateStr = InputHelper.getValidatedString(
                             "Nhập ngày (dd/MM/yyyy): ",
                             "^\\d{2}/\\d{2}/\\d{4}$",
                             "Định dạng ngày không đúng (vd: 25/12/2023)"
                     );
-                    LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                    displayList(invoiceService.searchByDate(date));
+                        LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                        displayList(invoiceService.searchByDate(date));
+
+                    }catch (Exception e){
+                        System.out.println(">> Ngày không hợp lệ!");
+                    }
                     break;
                 case 3:
                     return;
@@ -151,29 +160,42 @@ public class InvoiceView {
         System.out.println("------------------------------");
         InputHelper.pressEnterToContinue();
     }
+
+
     private void createNewInvoice() {
         System.out.println("\n--- TẠO HÓA ĐƠN MỚI ---");
+        //check khách hàng tồn tại
+
         int customerId = InputHelper.getInt("Nhập ID Khách hàng mua: ");
+        Customer customer = customerService.getById(customerId);
+        if (customer == null) {
+            System.out.println(">> Lỗi: Khách hàng không tồn tại");
+            return;
+        }
         List<InvoiceDetail> cart = new ArrayList<>();
         boolean buying = true;
         while (buying) {
+
             int productId = InputHelper.getInt("Nhập ID Sản phẩm: ");
             Product p = productService.getById(productId);
             if (p == null) {
                 System.out.println(">> Lỗi: Sản phẩm không tồn tại!");
                 continue;
             }
+
             System.out.println(">> Sản phẩm: " + p.getName() + " | Giá: " + Formatter.formatMoney(p.getPrice()) + " | Tồn: " + p.getStock());
             if (p.getStock() <= 0) {
                 System.out.println(">> HẾT HÀNG! Vui lòng chọn sản phẩm khác.");
                 continue;
             }
 
+
             int qty = InputHelper.getPositiveInt("Nhập số lượng mua: ");
             if (qty > p.getStock()) {
                 System.out.println(">> Lỗi: Số lượng mua vượt quá tồn kho (" + p.getStock() + ")");
                 continue;
             }
+
             InvoiceDetail item = new InvoiceDetail();
             item.setProductId(productId);
             item.setQuantity(qty);
@@ -188,7 +210,6 @@ public class InvoiceView {
             System.out.println(">> Giỏ hàng trống. Hủy tạo hóa đơn.");
             return;
         }
-
         double total = 0;
         System.out.println("\n--- XÁC NHẬN ĐƠN HÀNG ---");
         for (InvoiceDetail item : cart) {

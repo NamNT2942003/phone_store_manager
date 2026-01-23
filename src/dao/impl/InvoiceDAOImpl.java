@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class InvoiceDAOImpl implements IInvoiceDAO {
 
@@ -55,13 +56,11 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
             } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
         } finally {
-            try {
-                if (conn != null) conn.setAutoCommit(true);
-                if (callHeader != null) callHeader.close();
-                if (callDetail != null) callDetail.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) { e.printStackTrace(); }
+            ConnectionDB.closeConnection(conn, callHeader);
+            ConnectionDB.closeConnection(conn, callDetail);
         }
+
+
     }
     @Override
     public List<Invoice> getAll() {
@@ -117,7 +116,7 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
         List<Invoice> list = new ArrayList<>();
         Connection conn = null;
         CallableStatement callSt = null;
-        java.sql.Date sqlDate = java.sql.Date.valueOf(date);
+        Date sqlDate = Date.valueOf(date);
 
         try {
             conn = ConnectionDB.openConnection();
@@ -136,16 +135,18 @@ public class InvoiceDAOImpl implements IInvoiceDAO {
         finally { ConnectionDB.closeConnection(conn, callSt); }
         return list;
     }
-    private Map<Integer, Double> getRevenueData(String sql, Object... params) {
-        Map<Integer, Double> data = new java.util.TreeMap<>();
-        Connection conn = null;
+    private Map<Integer, Double> getRevenueData(String sql, int... params) {
+        Map<Integer, Double> data = new TreeMap<>();
+       Connection conn = null;
         CallableStatement callSt = null;
+
         try {
             conn = ConnectionDB.openConnection();
             callSt = conn.prepareCall(sql);
             for (int i = 0; i < params.length; i++) {
-                callSt.setObject(i + 1, params[i]);
+                callSt.setInt(i + 1, params[i]);
             }
+
             ResultSet rs = callSt.executeQuery();
             while(rs.next()) {
                 data.put(rs.getInt(1), rs.getDouble(2));
